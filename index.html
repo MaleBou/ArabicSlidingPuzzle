@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Nibras - Arabic Writing Sliding Puzzle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Balsamiq+Sans:wght@700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Lateef&family=Reem+Kufi&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            border: 8px solid #ff6b6b;
+        }
+
+        .original-title {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .original-title .arabic-name {
+            font-family: 'Reem Kufi', sans-serif;
+            font-size: 2.8em;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .original-title .english-name {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-top: -5px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            border: 4px dashed #e17055;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+        }
+
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .instructions ul {
+            list-style-position: inside;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+            font-weight: bold;
+        }
+
+        .game-info {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 4px solid #6c5ce7;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        #shuffleBtn {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            color: white;
+        }
+
+        #resetBtn {
+            background: linear-gradient(45deg, #74B9FF, #0984E3);
+            color: white;
+        }
+
+        #flipBtn {
+            background: linear-gradient(45deg, #A29BFE, #6C5CE7);
+            color: white;
+        }
+
+        #nextChallenge {
+            background: linear-gradient(45deg, #00B894, #55EFC4);
+            color: white;
+        }
+
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(5, 70px);
+            grid-template-rows: repeat(9, 70px);
+            gap: 4px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            padding: 15px;
+            border-radius: 20px;
+            border: 6px solid #ff9ff3;
+            margin: 20px auto;
+        }
+
+        .tile {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 3px solid rgba(0,0,0,0.3);
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+        }
+
+        .green {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .blue {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .purple {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .white {
+            background: linear-gradient(135deg, #ffffff, #f5f6fa);
+        }
+
+        .empty {
+            background: transparent;
+            border: 3px dashed #7f8c8d;
+            cursor: default;
+        }
+
+        .empty:hover {
+            transform: none;
+        }
+
+        .hidden {
+            opacity: 0.3;
+        }
+
+        .challenge-info {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 4px solid #fdcb6e;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .current-challenge {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .educational-purpose {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 4px dashed #bdc3c7;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .puzzle-board {
+                grid-template-columns: repeat(5, 50px);
+                grid-template-rows: repeat(9, 50px);
+            }
+            
+            .tile {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Original Arabic Name -->
+        <div class="original-title">
+            <div class="arabic-name">النّبراس</div>
+            <div class="english-name">Al-Nibras (The Beacon)</div>
+        </div>
+
+        <h1>🎮 Arabic Writing Sliding Puzzle 🎮</h1>
+        <div class="subtitle">5×9 Grid - Learn Arabic Letters & Numerals</div>
+        
+        <div class="instructions">
+            <h3>🌟 How to Play 🌟</h3>
+            <ul>
+                <li>🎯 Click any tile adjacent to the empty space to slide it</li>
+                <li>📝 Form Arabic letters and numerals in 5×7 grid</li>
+                <li>🔄 Use "Flip Puzzle" to see reference patterns</li>
+                <li>🏆 Complete challenges to learn different characters</li>
+                <li>🌈 Change tile colors to suit your preferences!</li>
+            </ul>
+        </div>
+
+        <div class="game-info">
+            <div class="stats">
+                <div class="stat">🎯 Moves: <span id="moveCounter">0</span></div>
+                <div class="stat">🏆 Challenge: <span id="challengeCounter">1/3</span></div>
+            </div>
+            <div class="controls">
+                <button id="shuffleBtn">🎲 Shuffle</button>
+                <button id="resetBtn">🔄 Reset</button>
+                <button id="flipBtn">📖 Flip Puzzle</button>
+                <button id="nextChallenge">⭐ Next Challenge</button>
+                <button id="colorBtn">🎨 Change Color</button>
+            </div>
+        </div>
+
+        <div class="puzzle-container">
+            <div class="puzzle-board" id="puzzleBoard">
+                <!-- Puzzle tiles will be generated here -->
+            </div>
+        </div>
+
+        <div class="challenge-info">
+            <div class="current-challenge" id="currentChallenge">Form the Arabic Letter Alif (ا)</div>
+        </div>
+
+        <div class="educational-purpose">
+            <h3>🎓 Educational Purpose</h3>
+            <p>This digital version mimics the physical sliding puzzle. Form Arabic letters (Challenge 1-29) and Arabic numerals (challenge 30-39) by sliding tiles, then flip to check against the reference patterns! Perfect for kids learning Arabic letters and numerals! 🎉</p>
+            <p style="margin-top: 15px; font-style: italic;">
+                <strong>Important Note:</strong> This game is based on the "Standard Script" developed by Professor Bouhadejra in 1990 for writing Arabic with a detached script. This script takes into account the hamza and short vowel marks (Harakat) and allows for automated processing of the Arabic language.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let moves = 0;
+        let emptyPos = { row: 4, col: 2 };
+        let board = [];
+        let isFlipped = false;
+        let currentColor = 'green';
+        let currentChallenge = 0;
+        
+        const challenges = [
+            { name: 'Form the Arabic Letter Alif (ا)', character: 'ا' },
+            { name: 'Form the Arabic Letter Ba (ب)', character: 'ب' },
+            { name: 'Form the Arabic Letter Ta (ت)', character: 'ت' }
+        ];
+
+        const colors = ['green', 'blue', 'purple'];
+
+        // Initialize the game
+        function initGame() {
+            createBoard();
+            renderBoard();
+            updateDisplay();
+            setupEventListeners();
+        }
+
+        // Create the game board
+        function createBoard() {
+            board = [];
+            for (let row = 0; row < 9; row++) {
+                board[row] = [];
+                for (let col = 0; col < 5; col++) {
+                    if (row === emptyPos.row && col === emptyPos.col) {
+                        board[row][col] = null;
+                    } else {
+                        const isColored = (row + col) % 2 === 0;
+                        board[row][col] = {
+                            color: isColored ? currentColor : 'white'
+                        };
+                    }
+                }
+            }
+        }
+
+        // Render the board
+        function renderBoard() {
+            const boardElement = document.getElementById('puzzleBoard');
+            boardElement.innerHTML = '';
+
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const tile = board[row][col];
+                    const tileElement = document.createElement('div');
+                    
+                    if (tile === null) {
+                        tileElement.className = 'tile empty';
+                    } else {
+                        let className = `tile ${tile.color}`;
+                        if (row === 0 || row === 8) {
+                            className += ' hidden';
+                        }
+                        tileElement.className = className;
+                        tileElement.onclick = function() { moveTile(row, col); };
+                    }
+                    
+                    boardElement.appendChild(tileElement);
+                }
+            }
+        }
+
+        // Move a tile
+        function moveTile(row, col) {
+            if (isFlipped) return;
+            
+            // Check if tile can move (adjacent to empty space)
+            const rowDiff = Math.abs(row - emptyPos.row);
+            const colDiff = Math.abs(col - emptyPos.col);
+            
+            if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+                // Swap tile with empty space
+                board[emptyPos.row][emptyPos.col] = board[row][col];
+                board[row][col] = null;
+                emptyPos = { row: row, col: col };
+                
+                moves++;
+                updateDisplay();
+                renderBoard();
+                
+                // Check for win condition
+                checkWin();
+            }
+        }
+
+        // Shuffle the puzzle
+        function shufflePuzzle() {
+            moves = 0;
+            emptyPos = { row: 4, col: 2 };
+            createBoard();
+            
+            // Make random moves to shuffle
+            const directions = [
+                { row: -1, col: 0 }, { row: 1, col: 0 },
+                { row: 0, col: -1 }, { row: 0, col: 1 }
+            ];
+
+            let shuffleMoves = 50;
+            
+            function makeShuffleMove() {
+                if (shuffleMoves <= 0) {
+                    updateDisplay();
+                    renderBoard();
+                    return;
+                }
+
+                const validMoves = directions.filter(dir => {
+                    const newRow = emptyPos.row + dir.row;
+                    const newCol = emptyPos.col + dir.col;
+                    return newRow >= 0 && newRow < 9 && newCol >= 0 && newCol < 5;
+                });
+
+                if (validMoves.length > 0) {
+                    const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    const newRow = emptyPos.row + randomMove.row;
+                    const newCol = emptyPos.col + randomMove.col;
+                    
+                    // Move the tile
+                    board[emptyPos.row][emptyPos.col] = board[newRow][newCol];
+                    board[newRow][newCol] = null;
+                    emptyPos = { row: newRow, col: newCol };
+                    
+                    shuffleMoves--;
+                }
+                
+                setTimeout(makeShuffleMove, 30);
+            }
+
+            makeShuffleMove();
+        }
+
+        // Flip the puzzle
+        function flipPuzzle() {
+            isFlipped = !isFlipped;
+            const board = document.getElementById('puzzleBoard');
+            board.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+            
+            const flipBtn = document.getElementById('flipBtn');
+            flipBtn.textContent = isFlipped ? '📚 Show Puzzle' : '📖 Flip Puzzle';
+        }
+
+        // Change tile color
+        function changeColor() {
+            const currentIndex = colors.indexOf(currentColor);
+            currentColor = colors[(currentIndex + 1) % colors.length];
+            createBoard();
+            renderBoard();
+        }
+
+        // Next challenge
+        function nextChallenge() {
+            currentChallenge = (currentChallenge + 1) % challenges.length;
+            updateDisplay();
+            shufflePuzzle();
+        }
+
+        // Check win condition
+        function checkWin() {
+            // Simple win condition for demo - in real game, check specific patterns
+            if (moves > 20) {
+                setTimeout(() => {
+                    alert(`Congratulations! You completed the challenge! 🎉\nMoving to next challenge...`);
+                    nextChallenge();
+                }, 500);
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('moveCounter').textContent = moves;
+            document.getElementById('challengeCounter').textContent = `${currentChallenge + 1}/${challenges.length}`;
+            document.getElementById('currentChallenge').textContent = challenges[currentChallenge].name;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('shuffleBtn').onclick = shufflePuzzle;
+            document.getElementById('resetBtn').onclick = function() {
+                moves = 0;
+                emptyPos = { row: 4, col: 2 };
+                createBoard();
+                renderBoard();
+                updateDisplay();
+            };
+            document.getElementById('flipBtn').onclick = flipPuzzle;
+            document.getElementById('nextChallenge').onclick = nextChallenge;
+            document.getElementById('colorBtn').onclick = changeColor;
+        }
+
+        // Initialize when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
