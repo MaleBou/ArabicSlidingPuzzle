@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Nibras - Arabic Writing Sliding Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            border: 8px solid #ff6b6b;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .game-info {
+            background: #74b9ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px;
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .stats {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-template-rows: repeat(9, 60px);
+            gap: 3px;
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 20px;
+            border: 6px solid #ff9ff3;
+            margin: 20px auto;
+        }
+
+        .tile {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid rgba(0,0,0,0.2);
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+        }
+
+        .green {
+            background: #27ae60;
+        }
+
+        .white {
+            background: white;
+        }
+
+        .empty {
+            background: transparent;
+            border: 2px dashed #7f8c8d;
+            cursor: default;
+        }
+
+        .empty:hover {
+            transform: none;
+        }
+
+        .educational-purpose {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 4px dashed #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Arabic Writing Sliding Puzzle 🎮</h1>
+        <div class="subtitle">5×9 Grid - Learn Arabic Letters & Numerals</div>
+        
+        <div class="game-info">
+            <div>
+                <button onclick="shufflePuzzle()">🎲 Shuffle</button>
+                <button onclick="resetPuzzle()">🔄 Reset</button>
+            </div>
+            <div class="stats">
+                🎯 Moves: <span id="moveCounter">0</span>
+            </div>
+        </div>
+
+        <div class="puzzle-board" id="puzzleBoard">
+            <!-- Puzzle will be generated here -->
+        </div>
+
+        <div class="educational-purpose">
+            <h3>🎓 Educational Purpose</h3>
+            <p>This digital version mimics the physical sliding puzzle. Form Arabic letters and numerals by sliding tiles!</p>
+        </div>
+    </div>
+
+    <script>
+        // Simple global variables
+        let moves = 0;
+        let emptyPos = { row: 4, col: 2 };
+        let board = [];
+
+        // Initialize the puzzle
+        function initPuzzle() {
+            console.log('Initializing puzzle...');
+            createBoard();
+            renderBoard();
+            updateMoveCounter();
+        }
+
+        // Create the board
+        function createBoard() {
+            board = [];
+            for (let row = 0; row < 9; row++) {
+                board[row] = [];
+                for (let col = 0; col < 5; col++) {
+                    if (row === emptyPos.row && col === emptyPos.col) {
+                        board[row][col] = null;
+                    } else {
+                        board[row][col] = {
+                            color: (row + col) % 2 === 0 ? 'green' : 'white'
+                        };
+                    }
+                }
+            }
+        }
+
+        // Render the board
+        function renderBoard() {
+            const boardElement = document.getElementById('puzzleBoard');
+            boardElement.innerHTML = '';
+
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const tile = board[row][col];
+                    const tileElement = document.createElement('div');
+                    
+                    if (tile === null) {
+                        tileElement.className = 'tile empty';
+                    } else {
+                        tileElement.className = `tile ${tile.color}`;
+                        tileElement.onclick = function() { moveTile(row, col); };
+                    }
+                    
+                    boardElement.appendChild(tileElement);
+                }
+            }
+        }
+
+        // Move a tile
+        function moveTile(row, col) {
+            // Check if tile can move (adjacent to empty space)
+            const rowDiff = Math.abs(row - emptyPos.row);
+            const colDiff = Math.abs(col - emptyPos.col);
+            
+            if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+                // Swap tile with empty space
+                board[emptyPos.row][emptyPos.col] = board[row][col];
+                board[row][col] = null;
+                emptyPos = { row: row, col: col };
+                
+                moves++;
+                updateMoveCounter();
+                renderBoard();
+            }
+        }
+
+        // Shuffle the puzzle
+        function shufflePuzzle() {
+            moves = 0;
+            updateMoveCounter();
+            emptyPos = { row: 4, col: 2 };
+            createBoard();
+            
+            // Make random moves to shuffle
+            const directions = [
+                { row: -1, col: 0 }, { row: 1, col: 0 },
+                { row: 0, col: -1 }, { row: 0, col: 1 }
+            ];
+
+            let shuffleMoves = 30;
+            
+            function makeShuffleMove() {
+                if (shuffleMoves <= 0) {
+                    renderBoard();
+                    return;
+                }
+
+                const validMoves = directions.filter(dir => {
+                    const newRow = emptyPos.row + dir.row;
+                    const newCol = emptyPos.col + dir.col;
+                    return newRow >= 0 && newRow < 9 && newCol >= 0 && newCol < 5;
+                });
+
+                if (validMoves.length > 0) {
+                    const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    const newRow = emptyPos.row + randomMove.row;
+                    const newCol = emptyPos.col + randomMove.col;
+                    
+                    // Move the tile
+                    board[emptyPos.row][emptyPos.col] = board[newRow][newCol];
+                    board[newRow][newCol] = null;
+                    emptyPos = { row: newRow, col: newCol };
+                    
+                    shuffleMoves--;
+                }
+                
+                setTimeout(makeShuffleMove, 50);
+            }
+
+            makeShuffleMove();
+        }
+
+        // Reset the puzzle
+        function resetPuzzle() {
+            moves = 0;
+            updateMoveCounter();
+            emptyPos = { row: 4, col: 2 };
+            createBoard();
+            renderBoard();
+        }
+
+        // Update move counter
+        function updateMoveCounter() {
+            document.getElementById('moveCounter').textContent = moves;
+        }
+
+        // Initialize when page loads
+        window.onload = function() {
+            console.log('Page loaded, starting puzzle...');
+            initPuzzle();
+            console.log('Puzzle ready!');
+        };
+    </script>
+</body>
+</html>
